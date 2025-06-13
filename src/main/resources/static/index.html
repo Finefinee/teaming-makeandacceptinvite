@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teaming Project Management</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+    h1, h2 {
+      color: #0056b3;
+    }
+    div {
+      background-color: #fff;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input[type="text"],
+    input[type="password"],
+    input[type="number"] {
+      width: calc(100% - 22px);
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    pre {
+      background-color: #e2e2e2;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      background-color: #e9ecef;
+      margin-bottom: 5px;
+      padding: 8px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+<h1>Teaming Project Management</h1>
+
+<div>
+  <h2>멤버 생성</h2>
+  <label for="newMemberUsername">사용자 이름:</label>
+  <input type="text" id="newMemberUsername" value="새멤버1"><br>
+  <label for="newMemberPassword">비밀번호:</label>
+  <input type="password" id="newMemberPassword" value="pass123"><br>
+  <label for="newMemberRole">역할:</label>
+  <input type="text" id="newMemberRole" value="developer"><br>
+  <button onclick="createMember()">멤버 생성</button>
+  <h3>응답:</h3>
+  <pre id="createMemberResponse"></pre>
+</div>
+
+<div>
+  <h2>프로젝트 생성</h2>
+  <label for="newProjectTitle">프로젝트 제목:</label>
+  <input type="text" id="newProjectTitle" value="새프로젝트A"><br>
+  <label for="newProjectDescription">설명:</label>
+  <input type="text" id="newProjectDescription" value="새로운 팀 프로젝트입니다."><br>
+  <label for="newProjectLeaderId">리더 ID (멤버 ID):</label>
+  <input type="number" id="newProjectLeaderId" value="1"><br>
+  <button onclick="createProject()">프로젝트 생성</button>
+  <h3>응답:</h3>
+  <pre id="createProjectResponse"></pre>
+</div>
+
+<div>
+  <h2>프로젝트에 멤버 추가</h2>
+  <label for="addMemberProjectId">프로젝트 ID:</label>
+  <input type="number" id="addMemberProjectId" value="1"><br>
+  <label for="addMemberMemberId">추가할 멤버 ID:</label>
+  <input type="number" id="addMemberMemberId" value="2"><br>
+  <button onclick="addMemberToProject()">멤버 추가</button>
+  <h3>응답:</h3>
+  <pre id="addMemberToProjectResponse"></pre>
+</div>
+
+<div>
+  <h2>모든 멤버 조회</h2>
+  <button onclick="getAllMembers()">모든 멤버 가져오기</button>
+  <h3>응답:</h3>
+  <ul id="allMembersList"></ul>
+</div>
+
+<div>
+  <h2>모든 프로젝트 조회</h2>
+  <button onclick="getAllProjects()">모든 프로젝트 가져오기</button>
+  <h3>응답:</h3>
+  <ul id="allProjectsList"></ul>
+</div>
+
+<script>
+  const API_BASE_URL = 'http://localhost:8080/api'; // 백엔드 서버 주소 (필요에 따라 변경)
+
+  async function fetchData(url, options = {}) {
+    try {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Something went wrong');
+      }
+      return data;
+    } catch (error) {
+      console.error('Fetch error:', error);
+      alert('에러 발생: ' + error.message);
+      return null;
+    }
+  }
+
+  async function createMember() {
+    const username = document.getElementById('newMemberUsername').value;
+    const password = document.getElementById('newMemberPassword').value;
+    const role = document.getElementById('newMemberRole').value;
+
+    const url = `${API_BASE_URL}/members?username=${username}&password=${password}&role=${role}`;
+    const responseElement = document.getElementById('createMemberResponse');
+
+    const member = await fetchData(url, { method: 'POST' });
+    if (member) {
+      responseElement.textContent = JSON.stringify(member, null, 2);
+    } else {
+      responseElement.textContent = "멤버 생성 실패";
+    }
+  }
+
+  async function createProject() {
+    const title = document.getElementById('newProjectTitle').value;
+    const description = document.getElementById('newProjectDescription').value;
+    const leaderId = document.getElementById('newProjectLeaderId').value;
+
+    const url = `${API_BASE_URL}/projects?title=${title}&description=${description}&leaderId=${leaderId}`;
+    const responseElement = document.getElementById('createProjectResponse');
+
+    const project = await fetchData(url, { method: 'POST' });
+    if (project) {
+      responseElement.textContent = JSON.stringify(project, null, 2);
+    } else {
+      responseElement.textContent = "프로젝트 생성 실패";
+    }
+  }
+
+  async function addMemberToProject() {
+    const projectId = document.getElementById('addMemberProjectId').value;
+    const memberId = document.getElementById('addMemberMemberId').value;
+
+    const url = `${API_BASE_URL}/projects/${projectId}/add-member/${memberId}`;
+    const responseElement = document.getElementById('addMemberToProjectResponse');
+
+    const updatedProject = await fetchData(url, { method: 'POST' });
+    if (updatedProject) {
+      responseElement.textContent = JSON.stringify(updatedProject, null, 2);
+    } else {
+      responseElement.textContent = "멤버 추가 실패";
+    }
+  }
+
+  async function getAllMembers() {
+    const url = `${API_BASE_URL}/members`;
+    const membersList = document.getElementById('allMembersList');
+    membersList.innerHTML = ''; // 기존 목록 초기화
+
+    const members = await fetchData(url);
+    if (members) {
+      if (members.length === 0) {
+        membersList.innerHTML = '<li>등록된 멤버가 없습니다.</li>';
+      } else {
+        members.forEach(member => {
+          const li = document.createElement('li');
+          li.textContent = `ID: ${member.id}, 이름: ${member.username}, 역할: ${member.role}`;
+          membersList.appendChild(li);
+        });
+      }
+    } else {
+      membersList.innerHTML = '<li>멤버 목록을 가져오지 못했습니다.</li>';
+    }
+  }
+
+  async function getAllProjects() {
+    const url = `${API_BASE_URL}/projects`;
+    const projectsList = document.getElementById('allProjectsList');
+    projectsList.innerHTML = ''; // 기존 목록 초기화
+
+    const projects = await fetchData(url);
+    if (projects) {
+      if (projects.length === 0) {
+        projectsList.innerHTML = '<li>등록된 프로젝트가 없습니다.</li>';
+      } else {
+        projects.forEach(project => {
+          const li = document.createElement('li');
+          const leaderName = project.leader ? project.leader.username : '없음';
+          const userCount = project.users ? project.users.length : 0;
+          li.textContent = `ID: ${project.id}, 제목: ${project.title}, 리더: ${leaderName}, 참여자 수: ${userCount}`;
+          projectsList.appendChild(li);
+        });
+      }
+    } else {
+      projectsList.innerHTML = '<li>프로젝트 목록을 가져오지 못했습니다.</li>';
+    }
+  }
+</script>
+</body>
+</html>

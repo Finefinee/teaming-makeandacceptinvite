@@ -7,7 +7,7 @@ import Teaming.teaming.DTO.InviteRequestDTO;
 import Teaming.teaming.Service.InviteService;
 
 @RestController
-@RequestMapping("/api/invites")
+@RequestMapping("/invites")
 @RequiredArgsConstructor
 public class InviteController {
 

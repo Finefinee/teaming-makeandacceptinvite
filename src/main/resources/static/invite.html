@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>초대 보내기</title>
+</head>
+<body>
+<h1>초대 보내기</h1>
+
+<form id="inviteForm">
+  <label for="managerId">매니저 ID:</label>
+  <input type="number" id="managerId" name="managerId" required><br><br>
+
+  <label for="contributorId">기여자 ID:</label>
+  <input type="number" id="contributorId" name="contributorId" required><br><br>
+
+  <label for="projectId">프로젝트 ID:</label>
+  <input type="number" id="projectId" name="projectId" required><br><br>
+
+  <button type="submit">초대 보내기</button>
+</form>
+
+<p id="result"></p>
+
+<script>
+  document.getElementById("inviteForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const managerId = document.getElementById("managerId").value;
+    const contributorId = document.getElementById("contributorId").value;
+    const projectId = document.getElementById("projectId").value;
+
+    fetch("/invites", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        managerId: managerId,
+        contributorId: contributorId,
+        projectId: projectId
+      })
+    })
+            .then(response => {
+              if (response.ok) {
+                return response.text();
+              } else {
+                throw new Error("초대 보내기 실패");
+              }
+            })
+            .then(data => {
+              document.getElementById("result").innerText = "✅ 초대가 성공적으로 전송됐어!";
+            })
+            .catch(error => {
+              document.getElementById("result").innerText = "❌ 오류: " + error.message;
+            });
+  });
+</script>
+</body>
+</html>

@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/???
-    username: ???
-    password: ???
+    url: jdbc:mysql://localhost:3306/acceptinvitetest
+    username: root
+    password: altMember
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
